@@ -1,0 +1,41 @@
+<app-nav></app-nav>
+
+<div class="container">
+    <h1>Ajouter Dependencies</h1>
+    <form [formGroup]="dependencyForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="lng">Longitude</label><br>
+        <input type="text" id="lng" formControlName="lng" class="form-control">
+      </div>
+      <pre></pre>
+      <div class="form-group">
+        <label for="lat">Latitude</label><br>
+        <input type="text" id="lat" formControlName="lat" class="form-control">
+      </div>
+      <pre></pre>
+      <div class="form-group">
+        <label for="title">Title</label><br>
+        <input type="text" id="title" formControlName="title" class="form-control">
+      </div>
+      <pre></pre>
+      <div class="form-group">
+        <label for="type">Type</label><br>
+        <input type="text" id="type" formControlName="type" class="form-control">
+      </div>
+      <pre></pre>
+      <div class="form-group">
+        <label for="description">Description</label><br>
+        <input type="text" id="description" formControlName="description" class="form-control">
+      </div>
+      <pre></pre>
+      <div class="form-group">
+        <label for="mapEntity">Map Entity</label>
+        <select id="mapEntity" formControlName="cre" class="form-control">
+          <option *ngFor="let entity of mapEntities" [value]="entity.cre">{{ entity.title }}</option>
+        </select>
+      </div>
+      <pre></pre>
+      <button type="submit" class="btn btn-primary" [disabled]="dependencyForm.invalid">Ajouter</button>
+    </form>
+  </div>
+  

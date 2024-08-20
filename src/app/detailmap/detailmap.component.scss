@@ -1,0 +1,42 @@
+.detailmap-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+  }
+  
+  .detailmap-container {
+    height: 100vh; /* Ajustez selon vos besoins */
+    width: 100%;   /* Ajustez selon vos besoins */
+  }
+  
+  .map-container {
+    height: 100%;  /* Remplit toute la hauteur du conteneur */
+    width: 100%;   /* Remplit toute la largeur du conteneur */
+  }
+
+  .detailmap-container {
+    position: relative;
+  }
+  
+ 
+  
+  .location-form {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: white;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000; 
+  }
+  
+  input {
+    margin-right: 10px;
+  }
+  
+  
+  

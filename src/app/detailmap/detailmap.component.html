@@ -1,1 +1,14 @@
-<p>detailmap works!</p>
+<app-nav></app-nav>
+<div class="detailmap-container">
+
+  <div id="detailmap" class="map-container"></div>
+
+  <div class="location-form">
+    <form (ngSubmit)="saveLocation()">
+      <label for="locationName">Nom de la localisation:</label>
+      <input id="locationName" [(ngModel)]="locationName" name="locationName" required />
+
+      <button type="submit">Ajouter la localisation</button>
+    </form>
+  </div>
+</div>

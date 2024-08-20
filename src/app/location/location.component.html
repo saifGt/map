@@ -1,0 +1,9 @@
+
+<app-nav></app-nav>
+
+<div id="frugalmap" style="height: 400px;"></div>
+<div>
+  <label for="locationName">Location Name:</label>
+  <input type="text" id="locationName" [(ngModel)]="locationName" placeholder="Enter location name">
+</div>
+<button (click)="saveMarkers()">Save Location</button>
