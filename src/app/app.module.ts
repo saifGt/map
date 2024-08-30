@@ -11,7 +11,6 @@ import { LocationComponent } from './location/location.component';
 import { FormsModule } from '@angular/forms';
 import { UserLogComponent } from './user-log/user-log.component';
 import { NavComponent } from './nav/nav.component';
-import { AuthenticationServiceComponent } from './authentication-service/authentication-service.component';
 
 
 @NgModule({
@@ -23,14 +22,13 @@ import { AuthenticationServiceComponent } from './authentication-service/authent
     LocationComponent,
     UserLogComponent,
     NavComponent,
-    AuthenticationServiceComponent
   ],
   imports: [
     BrowserModule,
     HttpClientModule,
     AppRoutingModule,
     ReactiveFormsModule,
-    FormsModule
+    FormsModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

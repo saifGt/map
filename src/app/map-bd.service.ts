@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, Observable } from 'rxjs';
 import { Etablissement } from './etablissement.model';
-
+import { LoginResponseDto } from './LoginResponseDto';
+import { Cre } from './Cre.model';
 
 
 
@@ -18,6 +19,8 @@ export class MapBDService {
   readonly ENDPOINT_LOCATION = '/api/location';
   readonly ENDPOINT_CRE = '/api/cre';
   readonly ENDPOINT_ETAB = '/api/etablissement';
+  readonly API_AG = '/api/auth';
+
 
   constructor(private httpClient: HttpClient) {}
   getEtablissement(cre: any) : Observable<any> {
@@ -58,5 +61,19 @@ export class MapBDService {
     return this.httpClient.get<Etablissement[]>(`${this.API_URL}${this.ENDPOINT_ETAB}/byCre/${cre}`);
   }
 
+  login(identifiant: string, motDePasse: string): Observable<LoginResponseDto> {
+    const loginRequest = {
+      identifiant: identifiant,
+      motDePasse: motDePasse
+    };
+
+    return this.httpClient.post<LoginResponseDto>(`${this.API_URL}${this.API_AG}/login`, loginRequest);
+  }
+
+ 
+  getCodeCre(CodeCre: string): Observable<Cre> {
+    return this.httpClient.get<Cre>(`${this.API_URL}${this.ENDPOINT_CRE}/byCre/${CodeCre}`);
+  }
+  
   
 }

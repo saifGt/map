@@ -1,174 +1,61 @@
-import { Component , OnInit, TemplateRef, ViewChild} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MapBDService } from '../map-bd.service';
-import {
-  AbstractControl,
-  FormBuilder,
-  FormGroup,
-  ValidatorFn,
-  Validators,
-} from "@angular/forms";
-
-import { ActivatedRoute, Router } from "@angular/router";
-import Swal from "sweetalert2";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
-
-import { AuthenticationService } from '../auth.service';
-
+import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { LoginResponseDto } from '../LoginResponseDto';
 
 @Component({
   selector: 'app-user-log',
   templateUrl: './user-log.component.html',
   styleUrls: ['./user-log.component.scss'],
-  providers :[MapBDService]
+  providers: [MapBDService]
 })
-export class UserLogComponent {
-  loginForm!: FormGroup;
-  submitted = false;
-  fieldTextType!: boolean;
-  changedPW : boolean = false;
-  error = "";
-  returnUrl!: string;
-  page: number = 0;
-  size: number = 20;
-  role!: string;
-  toast!: false;
-  nbrCnx:Number | undefined;
-
-  // set the current year
-  year: number = new Date().getFullYear();
-
-  changePassword: boolean = false;
-  changePasswordForm!: FormGroup;
-  @ViewChild("content") content!: TemplateRef<any>;
+export class UserLogComponent implements OnInit {
+  userForm!: FormGroup;
 
   constructor(
-    private formBuilder: FormBuilder,
-    private authenticationService: AuthenticationService,
+    private authService: MapBDService,
     private router: Router,
-    private modalService: NgbModal
-  ) {}
+    private fb: FormBuilder
+  ) { }
 
   ngOnInit(): void {
-    this.loginForm = this.formBuilder.group({
-      codeEtablissementActuel: ["", [Validators.required, Validators.min(9)]],
-      motdepasse: ["", [Validators.required, Validators.min(5)]],
+    this.userForm = this.fb.group({
+      identifiant: [''],
+      password: ['']
     });
-
-  }
-  mustMatch(identifiantKey: string, motdepasseKey: string) {
-    return (group: FormGroup) => {
-      const identifiantInput = group.controls[identifiantKey];
-      const motdepasseInput = group.controls[motdepasseKey];
-      if (identifiantInput.value !== motdepasseInput.value) {
-        return motdepasseInput.setErrors({ mustMatch: true });
-      }
-      return null;
-    };
   }
 
-  get f() {
-    return this.loginForm.controls;
-  }
+  onSubmit(): void {
+    this.authService.login(this.userForm.get('identifiant')?.value, this.userForm.get('password')?.value).subscribe({
+      next: (response: LoginResponseDto) => {
+        if (response.connected) {
+          localStorage.setItem('token', 'your-token'); 
 
-  get form() {
-    return this.changePasswordForm.controls;
-  }
+          this.router.navigate(['/map'], { queryParams: { codeCre: response.codeCre } });
 
-  openModal(content: any) {
-    this.submitted = false;
-    this.modalService.open(content, { size: "md", centered: true });
-  }
-
-  onSubmit() {
-    this.submitted = true;
-
-    this.authenticationService
-      .login(
-        this.loginForm.get("codeEtablissementActuel")?.value,
-        this.loginForm.get("motdepasse")?.value
-      )
-      .subscribe((data: AuthResponse) => {
-        this.nbrCnx=data.nombreDeConnexion
-        console.log(this.nbrCnx)
-        if (data.connected) {
-          
-          if (data.roleUser) {
-            localStorage.setItem("roleUser", data.roleUser);
-            localStorage.setItem("codeCre", data.codeCre ?? "");
-            localStorage.setItem("connected", data.connected);
-            localStorage.setItem("codeEtablissementActuel",data.codeEtablissement ?? "");
-            localStorage.setItem("nomEtablissementActuel",data.nomEtablissement ?? "");
-          }
-          if (data.roleUser?.toLowerCase().includes("super_admin")) {
-            localStorage.setItem("codeEtablissementActuel", "الوزارة");
-            localStorage.setItem("nomEtablissementActuel", "الوزارة");
-            this.router.navigateByUrl("/pyramid");
-          } else if (! this.changedPW &&this.nbrCnx==1  ) {
-           if(data.nombreDeConnexion)
-            this.openModal(this.content);
-         
-            if (data.codeEtablissement && data.nomEtablissement) {
-              localStorage.setItem(
-                "codeEtablissementActuel",
-                data.codeEtablissement
-              );
-              localStorage.setItem(
-                "nomEtablissementActuel",
-                data.nomEtablissement
-              );
-            }
-          }
-        
-          this.role = localStorage.getItem("roleUser") ?? "";
-          if (this.role == "SUPER_ADMIN") {
-            this.router.navigateByUrl("/pyramid/user");
-          }
-          if (this.role == "GESTIONNAIRE_CRE" && (this.changedPW ||this.nbrCnx != 1 )) {
-            this.router.navigateByUrl("/pyramid/etablissements");
-          }
-          if (this.role == "GESTIONNAIRE_ETABLISSEMENT" && (this.changedPW ||this.nbrCnx != 1)) {
-            this.router.navigateByUrl("/pyramid/employes");
-          }
+          Swal.fire({
+            icon: 'success',
+            title: 'Login Successful',
+            text: response.message,
+          });
         } else {
           Swal.fire({
-            title: "خطأ",
-            icon: "error",
-            confirmButtonText: "حسناً",
+            icon: 'error',
+            title: 'Login Failed',
+            text: response.message,
           });
         }
-      });
-  }
-
-  onSubmitNewPassword() {
-    this.changedPW = true
-    this.authenticationService
-      .changePwd(
-        this.changePasswordForm.value,
-        this.loginForm.get("codeEtablissementActuel")?.value
-      )
-      .subscribe(() => {
+      },
+      error: (err: any) => {
+        console.error('Login error:', err); 
         Swal.fire({
-          title: "تم تحديث كلمة المرور بنجاح",
-          icon: "success",
-          confirmButtonText: "حسناً", 
-        }).then(() => {
-          this.modalService.dismissAll();
-          this.loginForm.patchValue({
-            motdepasse: "",
-          });
+          icon: 'error',
+          title: 'Login Failed',
+          text: 'An error occurred. Please try again.',
         });
-      });
-  }
-
-  private matchPasswords(password: string) {
-    return (control: AbstractControl) => {
-      if (!control || !control.parent) {
-        return null;
       }
-      return control.parent.get(password)?.value === control.value
-        ? null
-        : { mismatch: true };
-    };
+    });
   }
 }
-

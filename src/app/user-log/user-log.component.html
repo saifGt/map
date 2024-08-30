@@ -14,10 +14,10 @@
 		<input type="checkbox" id="chk" aria-hidden="true">
 
 			<div class="Login">
-				<form>
+				<form  [formGroup]="userForm">
 					<label for="chk" aria-hidden="true">Login</label>
-                    <input type="text" name="Identifiant" placeholder="Identifiant" [(ngModel)]="LoginObj.Identifiant">
-					<input type="password" name="pswd" placeholder="Password" [(ngModel)]="LoginObj.password">
+                    <input type="text" name="Identifiant" placeholder="Identifiant" formControlName="identifiant" >
+					<input type="password" name="pswd" placeholder="Password" formControlName="password">
 					<button (click)="onSubmit()">Login</button>
 				</form>
 			</div>		

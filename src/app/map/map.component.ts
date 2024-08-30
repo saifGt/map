@@ -1,7 +1,8 @@
 import { Component, AfterViewInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import * as L from 'leaflet';
 import { MapBDService } from '../map-bd.service';
+import { Cre } from '../Cre.model';
 
 @Component({
   selector: 'app-map',
@@ -9,16 +10,13 @@ import { MapBDService } from '../map-bd.service';
   styleUrls: ['./map.component.scss']
 })
 export class MapComponent implements AfterViewInit {
-  private map!: L.Map ;
-  private creData: any[] = [];
-  private bounds: L.LatLngBounds;
+  private map!: L.Map;
+  private creData?: Cre; 
 
-  constructor(private mapService: MapBDService, private router: Router) {
-    this.bounds = L.latLngBounds(
-      L.latLng(30, 7.5),
-      L.latLng(37.5, 12)
-    );
-  }
+  constructor(
+    private mapService: MapBDService,
+    private route: ActivatedRoute
+  ) {}
 
   ngAfterViewInit(): void {
     this.initMap();
@@ -27,10 +25,8 @@ export class MapComponent implements AfterViewInit {
   private initMap(): void {
     if (!this.map) {
       this.map = L.map('map', {
-        center: [36.8064948, 10.1815316],
-        zoom: 6,
-        maxBounds: this.bounds,
-        maxBoundsViscosity: 1.0
+        center: [36.8064948, 10.1815316], 
+        zoom: 6
       });
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -39,81 +35,47 @@ export class MapComponent implements AfterViewInit {
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
       }).addTo(this.map);
 
-      const customIcon = L.icon({
-        iconUrl: '/assets/markericone.png',
-        iconSize: [24, 24],
-        iconAnchor: [12, 24],
-        popupAnchor: [0, -24]
+      this.route.queryParams.subscribe(params => {
+        const codeCre = params['codeCre'];
+        if (codeCre) {
+          this.loadCreData(codeCre);
+        }
       });
-
-      this.mapService.getCre().subscribe(data => {
-        this.creData = data;
-        this.creData.forEach(cre => {
-          const { codeCre, libelleCre, loc } = cre;
-          const { lat, lng } = loc;
-
-          if (lat && lng) {
-            const leafletMarker = L.marker([lat, lng], { icon: customIcon }).addTo(this.map);
-
-            const popupContent = `
-              <div class="popup-content">
-                <p><strong>${libelleCre}</strong></p>
-              </div>
-            `;
-
-            const popup = L.popup({
-              closeButton: false,
-              closeOnClick: false
-            }).setContent(popupContent);
-
-            leafletMarker.on('mouseover', () => {
-              leafletMarker.bindPopup(popup).openPopup();
-            });
-
-            leafletMarker.on('mouseout', () => {
-              leafletMarker.closePopup();
-            });
-
-            leafletMarker.on('click', () => {
-              const markerLatLng = leafletMarker.getLatLng();
-              this.map.setView(markerLatLng, 14);
-
-              this.router.navigate(['/detailmap'], {
-                queryParams: {
-                  lat: markerLatLng.lat.toFixed(4),
-                  lng: markerLatLng.lng.toFixed(4),
-                  zoom: this.map?.getZoom(),
-                  cre: codeCre
-                }
-              });
-            });
-          } else {
-            console.error('Invalid coordinates for CRE:', cre);
-          }
-        });
-      }, error => {
-        console.error('Error loading CRE data:', error);
-      });
-
-      this.map.on('moveend', () => this.updateMapState());
-      this.map.on('zoomend', () => this.updateMapState());
     } else {
       console.error('The map is already initialized.');
     }
   }
 
-  private updateMapState(): void {
-    if (this.map) {
-      const center = this.map.getCenter();
-      const zoom = this.map.getZoom();
-      this.router.navigate([], {
-        queryParams: {
-          lat: center.lat.toFixed(4),
-          lng: center.lng.toFixed(4),
-          zoom: zoom
-        },
-        queryParamsHandling: 'merge'
-      });
+  private loadCreData(codeCre: string): void {
+    this.mapService.getCodeCre(codeCre).subscribe(
+      (cre: Cre) => {
+        this.creData = cre;
+        this.addCreMarker(cre);
+      },
+      (error) => {
+        console.error('Erreur lors du chargement du CRE:', error);
+      }
+    );
+  }
+
+  private addCreMarker(cre: Cre): void {
+    if (cre && cre.loc) {
+      const { lat, lng } = cre.loc;
+
+      const marker = L.marker([lat, lng], {
+        icon: L.icon({
+          iconUrl: 'assets/markericone.png',
+          iconSize: [20, 20], 
+          iconAnchor: [10, 20], 
+          popupAnchor: [0, -20], 
+        })
+      }).addTo(this.map);
+
+      const popupContent = `
+        <strong>${cre.libelleCre}</strong><br>
+      `;
+
+      marker.bindPopup(popupContent).openPopup();
     }
   }
 }

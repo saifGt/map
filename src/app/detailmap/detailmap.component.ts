@@ -12,7 +12,7 @@ import { Etablissement } from '../etablissement.model';
 export class DetailmapComponent implements OnInit {
   private map!: L.Map;
   etablissements: Etablissement[] = [];
-  locationName: string = ''; // Variable pour le nom de la localisation
+  locationName: string = ''; 
   currentMarker?: L.Marker;
 
   constructor(
