@@ -33,27 +33,45 @@ export class UserLogComponent implements OnInit {
         if (response.connected) {
           localStorage.setItem('token', 'your-token'); 
 
-          this.router.navigate(['/map'], { queryParams: { codeCre: response.codeCre } });
+          switch (response.roleUser) {
+            case 'GESTIONNAIRE_MINISTERE':
+            case 'SUPER_ADMIN':
+              this.router.navigate(['/adminmap']);
+              break;
+            case 'GESTIONNAIRE_CRE':
+              this.router.navigate(['/map'], { queryParams: { codeCre: response.codeCre } });
+              break;
+            case 'GESTIONNAIRE_ETABLISSEMENT':
+              this.router.navigate(['/detailmap']);
+              break;
+            default:
+              Swal.fire({
+                icon: 'error',
+                title: 'Accès refusé',
+                text: 'Votre rôle ne vous permet pas d\'accéder à cette application.',
+              });
+              return;
+          }
 
           Swal.fire({
             icon: 'success',
-            title: 'Login Successful',
+            title: 'Connexion réussie',
             text: response.message,
           });
         } else {
           Swal.fire({
             icon: 'error',
-            title: 'Login Failed',
+            title: 'Échec de la connexion',
             text: response.message,
           });
         }
       },
       error: (err: any) => {
-        console.error('Login error:', err); 
+        console.error('Erreur lors de la connexion:', err); 
         Swal.fire({
           icon: 'error',
-          title: 'Login Failed',
-          text: 'An error occurred. Please try again.',
+          title: 'Échec de la connexion',
+          text: 'Une erreur est survenue. Veuillez réessayer.',
         });
       }
     });

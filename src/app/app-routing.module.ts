@@ -5,6 +5,7 @@ import { DetailmapComponent } from './detailmap/detailmap.component';
 import { FormsdependencyComponent } from './formsdependency/formsdependency.component';
 import { LocationComponent } from './location/location.component';
 import { UserLogComponent } from './user-log/user-log.component';
+import { AdminMapComponent } from './admin-map/admin-map.component';
 
 const routes: Routes = [
   {path:'login',  component: UserLogComponent},
@@ -13,7 +14,9 @@ const routes: Routes = [
   { path: 'detailmap', component: DetailmapComponent },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   {path : 'form',component:FormsdependencyComponent},
-  {path : 'location',component:LocationComponent}
+  {path : 'location',component:LocationComponent},
+  {path : 'adminmap',component:AdminMapComponent}
+
 
 ];
 

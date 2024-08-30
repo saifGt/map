@@ -1,5 +1,5 @@
 import { Component, AfterViewInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import * as L from 'leaflet';
 import { MapBDService } from '../map-bd.service';
 import { Cre } from '../Cre.model';
@@ -11,11 +11,12 @@ import { Cre } from '../Cre.model';
 })
 export class MapComponent implements AfterViewInit {
   private map!: L.Map;
-  private creData?: Cre; 
+  private creData?: Cre;
 
   constructor(
     private mapService: MapBDService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router 
   ) {}
 
   ngAfterViewInit(): void {
@@ -76,6 +77,19 @@ export class MapComponent implements AfterViewInit {
       `;
 
       marker.bindPopup(popupContent).openPopup();
+
+      marker.on('click', () => {
+        this.router.navigate(['/detailmap'], {
+          queryParams: {
+            lat: lat.toFixed(4),
+            lng: lng.toFixed(4),
+            zoom: this.map?.getZoom(),
+            cre: cre.CodeCre
+          }
+        });
+      });
+    } else {
+      console.error('Invalid CRE data:', cre);
     }
   }
 }

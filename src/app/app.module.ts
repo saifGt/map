@@ -11,6 +11,7 @@ import { LocationComponent } from './location/location.component';
 import { FormsModule } from '@angular/forms';
 import { UserLogComponent } from './user-log/user-log.component';
 import { NavComponent } from './nav/nav.component';
+import { AdminMapComponent } from './admin-map/admin-map.component';
 
 
 @NgModule({
@@ -22,6 +23,7 @@ import { NavComponent } from './nav/nav.component';
     LocationComponent,
     UserLogComponent,
     NavComponent,
+    AdminMapComponent,
   ],
   imports: [
     BrowserModule,
